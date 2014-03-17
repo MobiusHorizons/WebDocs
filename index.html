@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <script src="js/jdoc.js"></script>
+    <script src="js/events.js"></script>
+  </head>
+  <body>
+    <!--<input type="file" onchange="jdoc.loadFile(event)" />-->
+    <header> 
+	<center>
+	<button class="bold" 	  onclick='document.execCommand("Bold",false,null)'>B</button>
+	<button class="italic" 	  onclick='document.execCommand("Italic",false,null)'>I</button>
+	<button class="underline" onclick='document.execCommand("Underline",false,null)'>U</button>
+	</center>
+    </header>
+    <script>
+            document.body.appendChild(jdoc.Document());
+            jdoc.newPage();
+    </script>
+
+  </body>
+</html>
