@@ -171,39 +171,21 @@ jdoc.indent = function(){
 }
 
 jdoc.overflow = function(e){
-  console.log(e);
+  console.log(e.target.scrollHeight);
   var page = e.target;
   if (e.type=='overflow' || ('verticalOverflow' in e && e.verticalOverflow) && 
-	page.scrollHeight > page.clientHeight){
+	page.scrollHeight > page.offsetHeight){
     console.log(e.target);
     var el = page.content;
-    page.style.overflow = "visible";
-    el.style.overflow = "hidden";
-    el.style.height="100%";
     if (page.next == null) jdoc.newPage();
-    var elementsToMove = [];
-    var targetHeight = el.clientHeight; 
-    var overflowHeight = el.scrollHeight - targetHeight;
-    var addedHeight = 0;
-    var i;
     var children = el.children || el.childNodes;
-    for (i = children.length; i > 0; i--){
-	if ((children[i-1].offsetHeight + addedHeight) > overflowHeight){
-		break; // if we have found more elements to remove than we needed to
+    for (var i = children.length; i > 0; i--){
+        console.log(page.scrollHeight);
+	if (page.scrollHeight > page.offsetHeight){
+		page.next.content.insertBefore(children[i-1], page.next.content.firstChild);
 	} else {
-		addedHeight += children[i-1].offsetHeight;
-		elementsToMove.push(children[i-1]);
+		break; // if we have found more elements to remove than we needed to
 	} 
-    } // now i = the first child on the new page.
-   /* if (addedHeight < overflowHeight){// which it will be if the last element is multiline
-	el.c
-    }*/
-    el.style.overflow = "";
-    el.style.height = "";
-    page.style.overflow="";
-    for (var id in elementsToMove){
-	var elem = elementsToMove[id];
-	page.next.content.insertBefore(elem, page.next.content.firstChild);
     }
 	
   }
