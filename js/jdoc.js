@@ -4,6 +4,7 @@ jdoc.file="";
 jdoc.Document=function(){
   var Document = document.createElement('div');
   Document.className = "document";
+  Document.pages = [];
   jdoc.document = Document;
   return Document;
 }
@@ -35,12 +36,18 @@ jdoc.newPage=function(startOffset){
     Margins.blur();
   }
 
-  jdoc.document.appendChild(Page);
+  Page.next = null;
+  Page.prev = (jdoc.document.pages.length > 0)? jdoc.document.pages[jdoc.document.pages.length-1] : null;
+  if (Page.prev != null) Page.prev.next = Page;
+  Page = jdoc.document.appendChild(Page);
+  Page.content = Page.appendChild(Margins);
+  jdoc.document.pages.push(Page);
   jdoc.currentPage = Page;
-  jdoc.currentPage.content = Margins;
   Page.scrollIntoView(true);
   window.scrollBy(0,-50);
   events.clickFocus(Page);
+  Page.addEventListener("overflow",jdoc.overflow);
+  Page.addEventListener("overflowchanged",jdoc.overflow);
   Margins.innerHTML= jdoc.file.substring(startOffset,jdoc.file.length);
   window.addEventListener ("keydown", function (e) {    
     if ((e.keyIdentifier == 'U+0055'|| e.keyCode == 85) && e.ctrlKey){
@@ -78,7 +85,7 @@ jdoc.newPage=function(startOffset){
       e.preventDefault();
       e.stopPropagation();
     }
-    if (Margins.offsetHeight > Page.clientHeight){
+    /*if (Margins.offsetHeight > Page.clientHeight){
       var i;
       var offset=0;
       for (i = Margins.innerHTML.length; i > 0; i--){
@@ -94,7 +101,7 @@ jdoc.newPage=function(startOffset){
       jdoc.newPage(jdoc.file.length - offset);
     } else {
       events.input(Margins.innerHTML);
-    }
+    }*/
 
   });
 }
@@ -165,14 +172,40 @@ jdoc.indent = function(){
 
 jdoc.overflow = function(e){
   console.log(e);
-  if (e.type=='overflow' || ('verticalOverflow' in e && e.verticalOverflow)){
-    old = jdoc.currentPage;
-    old_html = old.content.innerHTML;
-    jdoc.newPage();
-    console.log(old_html.substr(0, old_html.length - jdoc.lastWord.length))
-    old.content.innerHTML = old_html.substr(0, old_html.length - jdoc.lastWord.length);
-    jdoc.currentPage.focus();
-    jdoc.currentPage.content.innerHTML = jdoc.lastWord;
+  var page = e.target;
+  if (e.type=='overflow' || ('verticalOverflow' in e && e.verticalOverflow) && 
+	page.scrollHeight > page.clientHeight){
+    console.log(e.target);
+    var el = page.content;
+    page.style.overflow = "visible";
+    el.style.overflow = "hidden";
+    el.style.height="100%";
+    if (page.next == null) jdoc.newPage();
+    var elementsToMove = [];
+    var targetHeight = el.clientHeight; 
+    var overflowHeight = el.scrollHeight - targetHeight;
+    var addedHeight = 0;
+    var i;
+    var children = el.children || el.childNodes;
+    for (i = children.length; i > 0; i--){
+	if ((children[i-1].offsetHeight + addedHeight) > overflowHeight){
+		break; // if we have found more elements to remove than we needed to
+	} else {
+		addedHeight += children[i-1].offsetHeight;
+		elementsToMove.push(children[i-1]);
+	} 
+    } // now i = the first child on the new page.
+   /* if (addedHeight < overflowHeight){// which it will be if the last element is multiline
+	el.c
+    }*/
+    el.style.overflow = "";
+    el.style.height = "";
+    page.style.overflow="";
+    for (var id in elementsToMove){
+	var elem = elementsToMove[id];
+	page.next.content.insertBefore(elem, page.next.content.firstChild);
+    }
+	
   }
 }
 jdoc.fileButton = function(element){

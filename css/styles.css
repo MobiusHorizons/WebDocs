@@ -20,12 +20,13 @@
 	  height: 11in;
 	  width: 8.5in;
 	  box-shadow:10px 10px 5px #444;
-	  font-family:inherit
-	  overflow:none;
+	  font-family:inherit;
+	  overflow:hidden;
 	  position:relative;
 
 	}
 	.margins{
+	  position: absolute;
 	  padding-top:1in;
 	  padding-bottom:1in;
 	  padding-left:1in;
@@ -37,7 +38,6 @@
 	  -webkit-box-sizing:border-box;
 	  -ms-box-sizing:border-box;
 	  -o-box-sizing:border-box;
-	  overflow:none;
 	}
 
 	/*p{
