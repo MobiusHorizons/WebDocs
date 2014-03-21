@@ -23,14 +23,13 @@ jdoc.newPage=function(startOffset){
   var Margins = document.createElement('div');
   Margins.className = "margins";
   Margins.contentEditable = true;
-  Page.appendChild(Margins);
   Page.focus = function(){
     Margins.contentEditable = true;
     Margins.click();
     Margins.focus();
     jdoc.currentPage.blur();
     jdoc.currentPage = Page;
-    //Page.scrollIntoView(false);
+    Page.scrollIntoView(false);
   }
   Page.blur = function(){
     Margins.blur();
@@ -41,6 +40,8 @@ jdoc.newPage=function(startOffset){
   if (Page.prev != null) Page.prev.next = Page;
   Page = jdoc.document.appendChild(Page);
   Page.content = Page.appendChild(Margins);
+  console.log(Margins);
+  console.log(Page.content.innerHTML);
   jdoc.document.pages.push(Page);
   jdoc.currentPage = Page;
   Page.scrollIntoView(true);
@@ -48,7 +49,6 @@ jdoc.newPage=function(startOffset){
   events.clickFocus(Page);
   Page.addEventListener("overflow",jdoc.overflow);
   Page.addEventListener("overflowchanged",jdoc.overflow);
-  Margins.innerHTML= jdoc.file.substring(startOffset,jdoc.file.length);
   window.addEventListener ("keydown", function (e) {    
     if ((e.keyIdentifier == 'U+0055'|| e.keyCode == 85) && e.ctrlKey){
       document.execCommand("underline",false,null);
@@ -80,10 +80,10 @@ jdoc.newPage=function(startOffset){
 
     } else
     if (e.keyIdentifier == 'Enter'|| e.keyCode == 13){
-      jdoc.stylize('<br />','', true);
-      jdoc.lastWord = '<br />';
-      e.preventDefault();
-      e.stopPropagation();
+      //jdoc.stylize('<br />','', true);
+      //jdoc.lastWord = '<br />';
+      //e.preventDefault();
+      //e.stopPropagation();
     }
     /*if (Margins.offsetHeight > Page.clientHeight){
       var i;
@@ -102,6 +102,7 @@ jdoc.newPage=function(startOffset){
     } else {
       events.input(Margins.innerHTML);
     }*/
+      events.input(Margins.innerHTML);
 
   });
 }
@@ -166,8 +167,33 @@ jdoc.stylize = function (start,end,selectPastedContent) {
 
 jdoc.indent = function(){
   console.log('indent');
-  //jdoc.stylize('<span class="margin-indent"> ','</span>',true)
-  jdoc.stylize('<span class="indent"> ','</span>',true);
+  var tab = document.createElement('span');
+  tab.className="indent";
+  tab.innerHTML = '&#09;';
+
+   
+  var selection = window.getSelection()
+  var oldRange = selection.getRangeAt(0);
+  console.log(oldRange.collapsed);
+  if (oldRange.collapsed){
+  	oldRange.insertNode(tab);
+	var range = document.createRange();
+	range.setStartAfter(tab);
+	range.collapse(true);
+	selection.removeAllRanges();
+	selection.addRange(range);
+  }else {
+  	oldRange.insertNode(tab);
+	selection.removeAllRanges();
+	selection.addRange(oldRange);
+  }
+	 
+  //var position = oldRange.endOffset;
+  //var container = oldRange.endContainer;
+  //range.setStart(container,position);
+  //range.collapse(true);
+  jdoc.currentPage.content.focus();
+  
 }
 
 jdoc.overflow = function(e){

@@ -4,9 +4,9 @@ events.setPageOverflow = function(){
   var el = jdoc.currentPage.content;
     el.addEventListener ("overflowchanged", jdoc.overflow,false);
     console.log('listener set');
-  console.log ('overflow' in window);
-    el.addEventListener('overflow',jdoc.overflow,false);
-    console.log('listener set');
+//  console.log ('overflow' in window);
+//    el.addEventListener('overflow',jdoc.overflow,false);
+//    console.log('listener set');
 
 }
 
